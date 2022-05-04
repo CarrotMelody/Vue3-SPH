@@ -112,7 +112,7 @@ export default {
     goSearch(event) {
       let element = event.target;
       let { categoryname, category1id, category2id, category3id } = element.dataset;
-      
+
       // 若有 categoryName 標籤即為 a 標籤
       if (categoryname) {
         let location = { name: 'Search' };
@@ -132,7 +132,7 @@ export default {
           location.params = this.$route.params;
         }
         // 整理参数
-        location.query = this.$route.query;
+        location.query = query;
         // 路由跳轉
         this.$router.push(location);
       }

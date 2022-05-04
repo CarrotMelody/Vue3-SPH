@@ -10,3 +10,6 @@ export const reqGetBannerList = () => mockRequests.get("/banner");
 
 // 獲取 floor
 export const reqFloorList = () => mockRequests.get("/floor");
+
+// 獲取搜索模塊數據
+export const reqGetSearchInfo = (data) => requests.post("/list", data);
