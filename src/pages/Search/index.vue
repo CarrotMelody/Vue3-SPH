@@ -11,38 +11,64 @@
             </li>
           </ul>
           <ul class="fl sui-tag">
-            <li class="with-x">手机</li>
-            <li class="with-x">iphone<i>×</i></li>
-            <li class="with-x">华为<i>×</i></li>
-            <li class="with-x">OPPO<i>×</i></li>
+            <!-- category -->
+            <li class="with-x" v-if="searchParams.categoryName">
+              {{ searchParams.categoryName }}
+              <i @click="removeCategoryName">x</i>
+            </li>
+            <!-- keyword -->
+            <li class="with-x" v-if="searchParams.keyword">
+              {{ searchParams.keyword }}
+              <i @click="removeKeyword">x</i>
+            </li>
+            <!-- trademark -->
+            <li class="with-x" v-if="searchParams.trademark">
+              {{ searchParams.trademark.split(":")[1] }}
+              <i @click="removeTrademark">x</i>
+            </li>
+            <!-- attr -->
+            <li
+              class="with-x"
+              v-for="(attrValue, index) in searchParams.props"
+              :key="index"
+            >
+              {{ attrValue.split(":")[1] }}
+              <i @click="removeAttr(index)">x</i>
+            </li>
           </ul>
         </div>
 
         <!--selector-->
-        <SearchSelector />
+        <SearchSelector @trademarkInfo="trademarkInfo" @attrInfo="attrInfo" />
 
         <!--details-->
         <div class="details clearfix">
           <div class="sui-navbar">
             <div class="navbar-inner filter">
               <ul class="sui-nav">
-                <li class="active">
-                  <a href="#">综合</a>
+                <li :class="{ active: isOne }" @click="changeOrder('1')">
+                  <a>综合
+                    <span
+                      v-show="isOne"
+                      class="iconfont"
+                      :class="{
+                        'icon-long-arrow-down': isDesc,
+                        'icon-long-arrow-up': isAsc,
+                      }"
+                    ></span>
+                  </a>
                 </li>
-                <li>
-                  <a href="#">销量</a>
-                </li>
-                <li>
-                  <a href="#">新品</a>
-                </li>
-                <li>
-                  <a href="#">评价</a>
-                </li>
-                <li>
-                  <a href="#">价格⬆</a>
-                </li>
-                <li>
-                  <a href="#">价格⬇</a>
+                <li :class="{ active: isTwo }" @click="changeOrder('2')">
+                  <a>价格
+                    <span
+                      v-show="isTwo"
+                      class="iconfont"
+                      :class="{
+                        'icon-long-arrow-down': isDesc,
+                        'icon-long-arrow-up': isAsc,
+                      }"
+                      ></span>
+                    </a>
                 </li>
               </ul>
             </div>
@@ -128,9 +154,10 @@
 </template>
 
 <script>
-import { onMounted, onBeforeMount, computed, reactive } from "vue";
-import { useRoute } from "vue-router";
+import { onMounted, onBeforeMount, computed, reactive, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
+import bus from "@/bus";
 import SearchSelector from "./SearchSelector/SearchSelector";
 
 export default {
@@ -141,6 +168,7 @@ export default {
   setup() {
     const store = useStore();
     const route = useRoute();
+    const router = useRouter();
 
     const data = reactive({
       searchParams: {
@@ -149,15 +177,16 @@ export default {
         category3Id: "",
         categoryName: "",
         keyword: "",
-        order: "",
+        order: "1:desc",
         pageNo: 1,
         pageSize: 10,
-        props: [""],
+        props: [],
         trademark: "",
       },
     });
 
     onBeforeMount(() => {
+      // 合併
       Object.assign(data.searchParams, route.query, route.params);
     });
 
@@ -171,11 +200,127 @@ export default {
       getList();
     });
 
+    // 監聽路由信息是否發生變化, 如果發生變化再次發送請求
+    watch(route, (curVal, preVal) => {
+      // 清空
+      Object.keys(data.searchParams).forEach((key) => {
+        if (
+          [
+            "category1Id",
+            "category2Id",
+            "category3Id",
+            "categoryName",
+            "keyword",
+          ].includes(key)
+        ) {
+          data.searchParams[key] = undefined;
+        }
+      });
+
+      // 合併
+      Object.assign(data.searchParams, route.query, route.params);
+
+      // 再次發送請求
+      getList();
+    });
+
+    // 刪除麵包屑
+    const removeCategoryName = () => {
+      data.searchParams.categoryName = undefined;
+      data.searchParams.category1Id = undefined;
+      data.searchParams.category2Id = undefined;
+      data.searchParams.category3Id = undefined;
+
+      // 清空路由
+      if (Object.keys(route.params).length) {
+        router.push({ name: "Search", params: route.params });
+      } else {
+        router.push({ name: "Search" });
+      }
+    };
+
+    // 刪除關鍵字
+    const removeKeyword = () => {
+      data.searchParams.keyword = undefined;
+      // 通知 Header 清除關鍵字
+      bus.emit("clear");
+      // 路由跳轉
+      if (Object.keys(route.query).length) {
+        router.push({ name: "Search", query: route.query });
+      } else {
+        router.push({ name: "Search" });
+      }
+    };
+
+    const trademarkInfo = (trademark) => {
+      data.searchParams.trademark = `${trademark.tmId}:${trademark.tmName}`;
+      // 再次請求
+      getList();
+    };
+
+    const removeTrademark = () => {
+      data.searchParams.trademark = undefined;
+      // 再次請求
+      getList();
+    };
+
+    // 收集平台售賣屬性
+    const attrInfo = (attr, attrValue) => {
+      let props = `${attr.attrId}:${attrValue}:${attr.attrName}`;
+
+      // 若無選擇才新增
+      if (data.searchParams.props.indexOf(props) == -1) {
+        data.searchParams.props.push(props);
+      }
+
+      // 再次請求
+      getList();
+    };
+
+    // 刪除平台售賣屬性
+    const removeAttr = (index) => {
+      data.searchParams.props.splice(index, 1);
+      // 再次請求
+      getList();
+    };
+
+    // 排序的操作
+    const changeOrder = (flag) => {
+      //flag: 1: 綜合 2: 價格
+      let originOrder = data.searchParams.order;
+      let originFlag = originOrder.split(':')[0];
+      let originSort = originOrder.split(':')[1];
+      let newOrder;
+      // 若點擊的是當前的類型則將排序方式相反
+      if (flag === originFlag) {
+        newOrder = `${originFlag}:${originSort === "desc" ? "asc" : "desc"}`
+      } else { // 點擊的類型與當前所選類型不同
+        newOrder = `${flag}:desc`
+      }
+
+      // 將新的 order 賦予 searchParams
+      data.searchParams.order = newOrder;
+      // 再次請求
+      getList();
+    }
+
     return {
       searchList: computed(() => store.state.search.searchList),
       goodsList: computed(() => store.getters.goodsList),
       trademarkList: computed(() => store.getters.trademarkList),
       attrsList: computed(() => store.getters.attrsList),
+      searchParams: computed(() => data.searchParams),
+      removeCategoryName,
+      removeKeyword,
+      trademarkInfo,
+      removeTrademark,
+      attrInfo,
+      removeAttr,
+      isOne: computed(() => data.searchParams.order.indexOf("1") !== -1),
+      isTwo: computed(() => data.searchParams.order.indexOf("2") !== -1),
+      isAsc: computed(() => data.searchParams.order.indexOf("asc") !== -1),
+      isDesc: computed(() => data.searchParams.order.indexOf("desc") !== -1),
+      changeOrder
     };
   },
 };

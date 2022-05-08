@@ -51,21 +51,40 @@
   </header>
 </template>
 <script>
+import { computed, reactive, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import bus from "@/bus";
+
 export default {
-  data() {
-    return {
+  setup() {
+    const route = useRoute();
+    const router = useRouter();
+    const data = reactive({
       keyword: "",
-    };
-  },
-  methods: {
-    goSearch() {
+    });
+
+    const goSearch = () => {
       // 路由傳遞參數
-      let location = { name: "Search", params: { keyword: this.keyword } };
-      if (Object.keys(this.$route.query).length) {
-        location.query = this.$route.query;
+      let location = { name: "Search", params: { keyword: data.keyword } };
+      if (Object.keys(route.query).length) {
+        location.query = route.query;
       }
-      this.$router.push(location);
-    },
+      router.push(location);
+    };
+
+    onMounted(() => {
+      bus.on("clear", () => {
+        data.keyword = "";
+      });
+    });
+
+    return {
+      keyword: computed({
+        get: () => data.keyword,
+        set: (value) => (data.keyword = value),
+      }),
+      goSearch,
+    };
   },
 };
 </script>

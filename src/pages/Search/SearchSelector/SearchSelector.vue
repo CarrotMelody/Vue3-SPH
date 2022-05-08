@@ -4,7 +4,11 @@
       <div class="fl key brand">品牌</div>
       <div class="value logos">
         <ul class="logo-list">
-          <li v-for="trademark in trademarkList" :key="trademark.tmId">
+          <li
+            v-for="trademark in trademarkList"
+            :key="trademark.tmId"
+            @click="trademarkHandler(trademark)"
+          >
             {{ trademark.tmName }}
           </li>
         </ul>
@@ -18,7 +22,7 @@
       <div class="fl key">{{ attr.attrName }}</div>
       <div class="fl value">
         <ul class="type-list">
-          <li v-for="(attrValue, index) in attr.attrValueList" :key="index">
+          <li v-for="(attrValue, index) in attr.attrValueList" :key="index" @click="attrInfo(attr, attrValue)">
             <a>{{ attrValue }}</a>
           </li>
         </ul>
@@ -29,17 +33,29 @@
 </template>
 
 <script>
-import { onMounted, computed } from "vue";
+import { computed } from "vue";
 import { useStore } from "vuex";
 
 export default {
   name: "SearchSelector",
-  setup() {
+  setup(props, context) {
     const store = useStore();
+
+    // 品牌的事件處理函數
+    const trademarkHandler = (trademark) => {
+      // 點擊品牌後整理參數，向服務器發送請求
+      context.emit("trademarkInfo", trademark);
+    };
+
+    const attrInfo = (attr, attrValue) => {
+      context.emit("attrInfo", attr, attrValue);
+    }
 
     return {
       trademarkList: computed(() => store.getters.trademarkList),
       attrsList: computed(() => store.getters.attrsList),
+      trademarkHandler,
+      attrInfo
     };
   },
 };

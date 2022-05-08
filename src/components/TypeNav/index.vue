@@ -13,7 +13,10 @@
                 :class="{ cur: currentIndex == index }"
               >
                 <h3 @mouseover="changeIndex(index)">
-                  <a :data-categoryName="c1.categoryName" :data-category1Id="c1.categoryId">
+                  <a
+                    :data-categoryName="c1.categoryName"
+                    :data-category1Id="c1.categoryId"
+                  >
                     {{ c1.categoryName }}
                   </a>
                 </h3>
@@ -28,13 +31,19 @@
                   >
                     <dl class="fore">
                       <dt>
-                        <a :data-categoryName="c2.categoryName" :data-category2Id="c2.categoryId">
+                        <a
+                          :data-categoryName="c2.categoryName"
+                          :data-category2Id="c2.categoryId"
+                        >
                           {{ c2.categoryName }}
                         </a>
                       </dt>
                       <dd>
                         <em v-for="c3 in c2.categoryChild" :key="c3.categoryId">
-                          <a :data-categoryName="c3.categoryName" :data-category3Id="c3.categoryId">
+                          <a
+                            :data-categoryName="c3.categoryName"
+                            :data-category3Id="c3.categoryId"
+                          >
                             {{ c3.categoryName }}
                           </a>
                         </em>
@@ -61,61 +70,59 @@
   </div>
 </template>
 <script>
-import { mapState } from "vuex";
+import { onMounted, computed, reactive } from "vue";
+import { useStore } from "vuex";
+import { useRoute, useRouter } from "vue-router";
 
 export default {
   name: "TypeNav",
-  data() {
-    return {
+  setup() {
+    const store = useStore();
+    const route = useRoute();
+    const router = useRouter();
+
+    const data = reactive({
       // 存儲用戶鼠標移上哪一個分類
       currentIndex: -1,
       // 節流
       throttleTimer: false,
       // 商品分類是否展開
       show: true,
-    };
-  },
-  mounted() {
-    // 當組件掛載完畢, 讓 show 屬性變為 false
-    // 如果不是 Home 路由組件則將 typeNav 進行隱藏
-    if (this.$route.path != '/home') {
-      this.show = false;
-    }
-  },
-  computed: {
-    ...mapState({
-      // 當使用這個計算屬性的時候, 函數會立即執行一次
-      // 參數 state 就是大倉庫中的數據
-      categoryList: (state) => {
-        return state.home.categoryList;
-      },
-    }),
-  },
-  methods: {
+    });
+
+    onMounted(() => {
+      // 當組件掛載完畢, 讓 show 屬性變為 false
+      // 如果不是 Home 路由組件則將 typeNav 進行隱藏
+      if (route.path != "/home") {
+        data.show = false;
+      }
+    });
+
     // 節流
-    throttle(callback, time) {
-      if (this.throttleTimer) return;
-      this.throttleTimer = true;
+    const throttle = (callback, time) => {
+      if (data.throttleTimer) return;
+      data.throttleTimer = true;
 
       setTimeout(() => {
         callback();
-        this.throttleTimer = false;
+        data.throttleTimer = false;
       }, time);
-    },
+    };
     // 獲取當前 hover 的分類 index
-    changeIndex(index) {
-      this.throttle(() => {
-        this.currentIndex = index;
+    const changeIndex = (index) => {
+      throttle(() => {
+        data.currentIndex = index;
       }, 25);
-    },
+    };
     // 菜單路由跳轉
-    goSearch(event) {
+    const goSearch = (event) => {
       let element = event.target;
-      let { categoryname, category1id, category2id, category3id } = element.dataset;
+      let { categoryname, category1id, category2id, category3id } =
+        element.dataset;
 
       // 若有 categoryName 標籤即為 a 標籤
       if (categoryname) {
-        let location = { name: 'Search' };
+        let location = { name: "Search" };
         let query = { categoryName: categoryname };
 
         // 若有 category1id 即為一級菜單, 依此類推
@@ -127,26 +134,37 @@ export default {
           query.category3Id = category3id;
         }
 
-        // 判斷: 如果路由跳轉時, 帶有 params / query 參數需要傳地過去        
-        if (Object.keys(this.$route.params).length) {
-          location.params = this.$route.params;
+        // 判斷: 如果路由跳轉時, 帶有 params / query 參數需要傳地過去
+        if (Object.keys(route.params).length) {
+          location.params = route.params;
         }
         // 整理参数
         location.query = query;
         // 路由跳轉
-        this.$router.push(location);
+        router.push(location);
       }
-    },
+    };
     // 當鼠標移入的時候展開商品分類菜單
-    enterShow() {
-      this.show = true;
-    },
-    leaveShow() {
-      this.currentIndex = -1;
-      if (this.$route.path !== '/home') {
-        this.show = false;
+    const enterShow = () => {
+      data.show = true;
+    };
+
+    const leaveShow = () => {
+      data.currentIndex = -1;
+      if (route.path !== "/home") {
+        data.show = false;
       }
-    }
+    };
+
+    return {
+      categoryList: computed(() => store.state.home.categoryList),
+      changeIndex,
+      goSearch,
+      enterShow,
+      leaveShow,
+      show: computed(() => data.show),
+      currentIndex: computed(() => data.currentIndex),
+    };
   },
 };
 </script>
@@ -281,13 +299,16 @@ export default {
     }
 
     // 過渡動畫的樣式
-    .sort-enter-from { // 過渡動畫開始狀態(進入)
+    .sort-enter-from {
+      // 過渡動畫開始狀態(進入)
       height: 0px;
     }
-    .sort-enter-to { // 過渡動畫結束狀態(進入)
+    .sort-enter-to {
+      // 過渡動畫結束狀態(進入)
       height: 461px;
     }
-    .sort-enter-active { // 定義動畫時間, 速率
+    .sort-enter-active {
+      // 定義動畫時間, 速率
       transition: all 0.1s linear;
     }
   }
