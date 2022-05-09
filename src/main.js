@@ -17,14 +17,15 @@ import TypeNav from "@/components/TypeNav";
 app.component(TypeNav.name, TypeNav);
 import Carousel from "@/components/Carousel";
 app.component(Carousel.name, Carousel);
-
+import Page from "@/components/Pagination";
+app.component(Pagination.name, Page);
 // 引入 mock 數據
 import "@/mock/mockServer";
 
 // 引入 swiper
 import "swiper/css";
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
+import "swiper/css/navigation";
+import "swiper/css/pagination";
 import SwiperCore, {
   Navigation,
   Pagination,
