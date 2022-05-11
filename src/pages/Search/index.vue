@@ -84,9 +84,9 @@
               >
                 <div class="list-wrap">
                   <div class="p-img">
-                    <a href="item.html" target="_blank"
-                      ><img :src="good.defaultImg"
-                    /></a>
+                    <router-link :to="`/detail/${good.id}`">
+                      <img :src="good.defaultImg"/>
+                    </router-link>
                   </div>
                   <div class="price">
                     <strong>
@@ -120,7 +120,13 @@
               </li>
             </ul>
           </div>
-          <Pagination :pageNo="31" :pageSize="3" :total="91" :continues="5" />
+          <Pagination
+            :pageNo="searchParams.pageNo"
+            :pageSize="searchParams.pageSize"
+            :total="searchList.total"
+            :continues="5"
+            @getPageNo="getPageNo"
+          />
         </div>
       </div>
     </div>
@@ -278,6 +284,11 @@ export default {
       getList();
     };
 
+    const getPageNo = (pageNo) => {
+      data.searchParams.pageNo = pageNo;
+      getList();
+    }
+
     return {
       searchList: computed(() => store.state.search.searchList),
       goodsList: computed(() => store.getters.goodsList),
@@ -295,6 +306,7 @@ export default {
       isAsc: computed(() => data.searchParams.order.indexOf("asc") !== -1),
       isDesc: computed(() => data.searchParams.order.indexOf("desc") !== -1),
       changeOrder,
+      getPageNo
     };
   },
 };
@@ -542,8 +554,6 @@ export default {
           }
         }
       }
-
-     
     }
   }
 }

@@ -13,3 +13,6 @@ export const reqFloorList = () => mockRequests.get("/floor");
 
 // 獲取搜索模塊數據
 export const reqGetSearchInfo = (data) => requests.post("/list", data);
+
+// 獲取產品詳情信息
+export const reqGoodsInfo = (skuid) => requests.get(`/item/${skuid}`);

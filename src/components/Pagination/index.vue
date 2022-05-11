@@ -3,10 +3,12 @@
     <div class="sui-pagination clearfix">
       <ul>
         <li class="prev disabled">
-          <a href="#">«上一页</a>
+          <a :disabled="pageNo == 1" @click="$emit('getPageNo', pageNo - 1)">
+            «上一页
+          </a>
         </li>
-        <li class="active" v-if="startNumAndEndNum.start > 1">
-          <a href="#">1</a>
+        <li :class="{ active: pageNo == 1 }" v-if="startNumAndEndNum.start > 1">
+          <a @click="$emit('getPageNo', 1)">1</a>
         </li>
         <li class="dotted" v-if="startNumAndEndNum.start > 2">
           <span>...</span>
@@ -15,17 +17,28 @@
           v-for="(page, index) in startNumAndEndNum.end"
           :key="index"
           v-show="page >= startNumAndEndNum.start"
+          :class="{ active: pageNo == page }"
         >
-          <a href="#">{{ page }}</a>
+          <a @click="$emit('getPageNo', page)">
+            {{ page }}
+          </a>
         </li>
         <li class="dotted" v-if="startNumAndEndNum.end < totalPage - 1">
           <span>...</span>
         </li>
-        <li v-if="startNumAndEndNum.end < totalPage">
-          <a href="#">{{ totalPage }}</a>
+        <li
+          v-if="startNumAndEndNum.end < totalPage"
+          :class="{ active: pageNo == totalPage }"
+        >
+          <a @click="$emit('getPageNo', totalPage)">{{ totalPage }}</a>
         </li>
         <li class="next">
-          <a href="#">下一页»</a>
+          <a
+            :disabled="pageNo == totalPage"
+            @click="$emit('getPageNo', pageNo + 1)"
+          >
+            下一页»
+          </a>
         </li>
       </ul>
       <div>
@@ -35,43 +48,72 @@
   </div>
 </template>
 <script>
-import { computed } from "vue";
 export default {
   name: "Pagination",
   props: ["pageNo", "pageSize", "total", "continues"],
-  setup(props) {
-    const { total, pageSize, pageNo, continues } = props;
-    const totalPage = Math.ceil(total / pageSize);
-
-    return {
-      totalPage: computed(() => Math.ceil(total / pageSize)),
-      // 計算出連續的頁碼起始數字和結束數字(連續頁碼數至少 5 頁)
-      startNumAndEndNum: computed(() => {
-        let start = 0,
-          end = 0;
-        // 如果不足 5 頁
-        if (continues > totalPage) {
+  computed: {
+    totalPage() {
+      return Math.ceil(this.total / this.pageSize);
+    },
+    startNumAndEndNum() {
+      let start = 0,
+        end = 0;
+      // 如果不足 5 頁
+      if (this.continues > this.totalPage) {
+        start = 1;
+        end = this.totalPage;
+      } else {
+        // 連續頁碼 5, 總頁數大於 5
+        start = this.pageNo - parseInt(this.continues / 2);
+        end = this.pageNo + parseInt(this.continues / 2);
+        // start 數字為 0 或負數時糾正
+        if (start < 1) {
           start = 1;
-          end = totalPage;
-        } else {
-          // 連續頁碼 5, 總頁數大於 5
-          start = pageNo - parseInt(continues / 2);
-          end = pageNo + parseInt(continues / 2);
-          // start 數字為 0 或負數時糾正
-          if (start < 1) {
-            start = 1;
-            end = continues;
-          }
-          // end 數字大於總頁碼
-          if (end > totalPage) {
-            end = totalPage;
-            start = totalPage - continues + 1;
-          }
+          end = this.continues;
         }
-        return { start, end };
-      }),
-    };
+        // end 數字大於總頁碼
+        if (end > this.totalPage) {
+          end = this.totalPage;
+          start = this.totalPage - this.continues + 1;
+        }
+      }
+      return { start, end };
+    },
   },
+  // setup(props) {
+  //   const { total, pageSize, pageNo, continues } = props;
+  //   const totalPage = computed(() => Math.ceil(total / pageSize));
+
+  //   return {
+  //     pageNo,
+  //     totalPage: totalPage.value,
+  //     // 計算出連續的頁碼起始數字和結束數字(連續頁碼數至少 5 頁)
+  //     startNumAndEndNum: computed(() => {
+  //       let start = 0,
+  //         end = 0;
+  //       // 如果不足 5 頁
+  //       if (continues > totalPage) {
+  //         start = 1;
+  //         end = totalPage;
+  //       } else {
+  //         // 連續頁碼 5, 總頁數大於 5
+  //         start = pageNo - parseInt(continues / 2);
+  //         end = pageNo + parseInt(continues / 2);
+  //         // start 數字為 0 或負數時糾正
+  //         if (start < 1) {
+  //           start = 1;
+  //           end = continues;
+  //         }
+  //         // end 數字大於總頁碼
+  //         if (end > totalPage) {
+  //           end = totalPage;
+  //           start = totalPage - continues + 1;
+  //         }
+  //       }
+  //       return { start, end };
+  //     }),
+  //   };
+  // },
 };
 </script>
 <style lang="less">
@@ -106,6 +148,7 @@ export default {
           font-size: 14px;
           padding: 9px 18px;
           color: #333;
+          cursor: pointer;
         }
 
         &.active {
@@ -113,7 +156,7 @@ export default {
             background-color: #fff;
             color: #e1251b;
             border-color: 1px solid #e0e9ee;
-            cursor: default;
+            cursor: pointer;
           }
         }
 
@@ -121,13 +164,14 @@ export default {
           a {
             background-color: #fafafa;
             border-left: 2px solid #e0e9ee;
+            cursor: pointer;
           }
         }
 
         &.disabled {
           a {
             color: #999;
-            cursor: default;
+            cursor: not-allowed;
           }
         }
 
@@ -150,6 +194,7 @@ export default {
         &.next {
           a {
             background-color: #fafafa;
+            cursor: pointer;
           }
         }
       }
