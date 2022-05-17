@@ -88,6 +88,12 @@
                   :class="{ active: spuSaleAttrValue.isChecked }"
                   v-for="spuSaleAttrValue in spuSaleAttr.spuSaleAttrValueList"
                   :key="spuSaleAttrValue.id"
+                  @click="
+                    changeActive(
+                      spuSaleAttrValue,
+                      spuSaleAttr.spuSaleAttrValueList
+                    )
+                  "
                 >
                   {{ spuSaleAttrValue.saleAttrValueName }}
                 </dd>
@@ -95,9 +101,9 @@
             </div>
             <div class="cartWrap">
               <div class="controls">
-                <input autocomplete="off" class="itxt" />
-                <a href="javascript:" class="plus">+</a>
-                <a href="javascript:" class="mins">-</a>
+                <input autocomplete="off" class="itxt" v-model="skuNum" @change="changeSkuNum" />
+                <a href="javascript:" class="plus" @click="skuNum++">+</a>
+                <a href="javascript:" class="mins" @click="skuNum > 1 ? skuNum-- : (skuNum = 1)">-</a>
               </div>
               <div class="add">
                 <a href="javascript:">加入购物车</a>
@@ -339,7 +345,7 @@
 </template>
 
 <script>
-import { computed, onMounted } from "vue";
+import { computed, onMounted, reactive } from "vue";
 import { useRoute } from "vue-router";
 import { useStore } from "vuex";
 import ImageList from "./ImageList/ImageList";
@@ -355,16 +361,50 @@ export default {
     const store = useStore();
     const route = useRoute();
 
+    const data = reactive({
+      skuNum: 0,
+    });
+
     onMounted(() => {
       store.dispatch("getGoodInfo", route.params.skuid);
     });
+
+    // 產品售賣屬性切換高亮
+    const changeActive = (spuSaleAttrValue, arr) => {
+      // 遍歷全部售賣屬性將 isChecked 值改為 0 (清除高亮)
+      arr.forEach((item) => {
+        item.isChecked = 0;
+      });
+      // 點擊的值有高亮
+      spuSaleAttrValue.isChecked = 1;
+    };
+
+    // 表單元素修改產品個數
+    const changeSkuNum = (event) => {
+      let value = event.target.value * 1;
+      if (isNaN(value) || value < 1) {
+        data.skuNum = 1;
+      } else {
+        data.skuNum = parseInt(value);
+      }
+    }
 
     return {
       categoryView: computed(() => store.getters.categoryView),
       skuInfo: computed(() => store.getters.skuInfo),
       skuImageList: computed(() => store.getters.skuInfo.skuImageList || []),
-      spuSaleAttrList: computed(() => store.getters.spuSaleAttrList)
-    }
+      spuSaleAttrList: computed(() => store.getters.spuSaleAttrList),
+      changeActive,
+      skuNum: computed({
+        get: () => {
+          return data.skuNum;
+        },
+        set: (value) => {
+          data.skuNum = value;
+        },
+      }),
+      changeSkuNum
+    };
   },
 };
 </script>

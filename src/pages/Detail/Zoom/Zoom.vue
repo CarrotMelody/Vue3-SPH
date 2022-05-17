@@ -1,27 +1,62 @@
 <template>
   <div class="spec-preview">
     <img :src="imgObj.imgUrl" />
-    <div class="event"></div>
+    <div class="event" @mousemove="handler"></div>
     <div class="big">
-      <img :src="imgObj.imgUrl" />
+      <img :src="imgObj.imgUrl" ref="big" />
     </div>
-    <div class="mask"></div>
+    <div class="mask" ref="mask"></div>
   </div>
 </template>
 
 <script>
-import { computed, onMounted } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
+import bus from "@/bus";
+
 export default {
   name: "Zoom",
   props: ["skuImageList"],
   setup(props) {
+    const mask = ref(null);
+    const big = ref(null);
+    const data = reactive({
+      currentIndex: 0,
+    });
+
+    // 放大鏡
+    const handler = (event) => {
+      let maskVal = mask.value;
+      let bigVal = big.value;
+
+      let left = event.offsetX - maskVal.offsetWidth / 2;
+      let top = event.offsetY - maskVal.offsetHeight / 2;
+
+      // 約束範圍
+      if (left <= 0) left = 0;
+      if (left >= maskVal.offsetWidth) left = maskVal.offsetWidth;
+      if (top <= 0) top = 0;
+      if (top >= maskVal.offsetHeight) top = maskVal.offsetHeight;
+
+      // 修改元素的 left | top 屬性值
+      maskVal.style.left = left + "px";
+      maskVal.style.top = top + "px";
+      bigVal.style.left = -2 * left + "px";
+      bigVal.style.top = -2 * top + "px";
+    };
+
     onMounted(() => {
-      
+      // bus 獲取兄弟組件傳過來的圖片索引值
+      bus.on("getImgIndex", (index) => {
+        data.currentIndex = index;
+      });
     });
 
     return {
-      imgObj: computed(() => props.skuImageList[0] || {}),
-    }
+      mask,
+      big,
+      imgObj: computed(() => props.skuImageList[data.currentIndex] || {}),
+      handler,
+    };
   },
 };
 </script>

@@ -7,10 +7,14 @@
     }"
     :pagination="{ clickable: true }"
     :autoplay="{ autoplay: true }"
-    loop
+    :slides-per-view="3"
   >
-    <swiper-slide v-for="slide in skuImageList" :key="slide.id">
-      <img :src="slide.imgUrl" />
+    <swiper-slide v-for="(slide, index) in skuImageList" :key="slide.id">
+      <img
+        :src="slide.imgUrl"
+        :class="{ active: currentIndex == index }"
+        @click="changeCurrentIndex(index)"
+      />
     </swiper-slide>
 
     <div class="swiper-pagination"></div>
@@ -21,8 +25,10 @@
 </template>
 
 <script>
-import { computed, onMounted } from "vue";
+import { reactive, computed } from "vue";
 import { Swiper, SwiperSlide } from "swiper/vue";
+import bus from "@/bus";
+
 export default {
   name: "ImageList",
   props: ["skuImageList"],
@@ -31,9 +37,21 @@ export default {
     SwiperSlide,
   },
   setup(props) {
+    const data = reactive({
+      currentIndex: 0,
+    });
+
+    const changeCurrentIndex = (index) => {
+      data.currentIndex = index;
+      // 通知兄弟組件, 當前的索引值
+      bus.emit("getImgIndex", data.currentIndex);
+    };
+
     return {
-      skuImageList: props.skuImageList
-    }
+      skuImageList: props.skuImageList,
+      currentIndex: computed(() => data.currentIndex),
+      changeCurrentIndex,
+    };
   },
 };
 </script>
@@ -63,10 +81,10 @@ export default {
         padding: 1px;
       }
 
-      &:hover {
-        border: 2px solid #f60;
-        padding: 1px;
-      }
+      // &:hover {
+      //   border: 2px solid #f60;
+      //   padding: 1px;
+      // }
     }
   }
 
