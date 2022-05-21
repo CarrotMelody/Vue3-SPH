@@ -101,12 +101,22 @@
             </div>
             <div class="cartWrap">
               <div class="controls">
-                <input autocomplete="off" class="itxt" v-model="skuNum" @change="changeSkuNum" />
+                <input
+                  autocomplete="off"
+                  class="itxt"
+                  v-model="skuNum"
+                  @change="changeSkuNum"
+                />
                 <a href="javascript:" class="plus" @click="skuNum++">+</a>
-                <a href="javascript:" class="mins" @click="skuNum > 1 ? skuNum-- : (skuNum = 1)">-</a>
+                <a
+                  href="javascript:"
+                  class="mins"
+                  @click="skuNum > 1 ? skuNum-- : (skuNum = 1)"
+                  >-</a
+                >
               </div>
               <div class="add">
-                <a href="javascript:">加入购物车</a>
+                <a @click="addShopCar">加入购物车</a>
               </div>
             </div>
           </div>
@@ -346,7 +356,7 @@
 
 <script>
 import { computed, onMounted, reactive } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import ImageList from "./ImageList/ImageList";
 import Zoom from "./Zoom/Zoom";
@@ -360,6 +370,7 @@ export default {
   setup() {
     const store = useStore();
     const route = useRoute();
+    const router = useRouter();
 
     const data = reactive({
       skuNum: 0,
@@ -387,7 +398,30 @@ export default {
       } else {
         data.skuNum = parseInt(value);
       }
-    }
+    };
+
+    // 添加購物車
+    const addShopCar = async () => {
+      // 1. 發請求--將產品加入倒資料庫(通知伺服器)
+      // 2. 伺服器存儲成功 -- 進行路由跳轉傳遞參數
+      // 3. 失敗:給用戶進行提示
+      try {
+        await store.dispatch("addOrUpdateShopCar", {
+          skuId: Number(route.params.skuid),
+          skuNum: data.skuNum,
+        });
+
+        // 會話存儲
+        sessionStorage.setItem(
+          "SKUINFO",
+          JSON.stringify(store.getters.skuInfo)
+        );
+        // 進行路由跳轉
+        router.push({ name: "Addcartsuccess", query: { skuNum: data.skuNum } });
+      } catch (error) {
+        alert(error.message);
+      }
+    };
 
     return {
       categoryView: computed(() => store.getters.categoryView),
@@ -395,6 +429,8 @@ export default {
       skuImageList: computed(() => store.getters.skuInfo.skuImageList || []),
       spuSaleAttrList: computed(() => store.getters.spuSaleAttrList),
       changeActive,
+      changeSkuNum,
+      addShopCar,
       skuNum: computed({
         get: () => {
           return data.skuNum;
@@ -403,7 +439,6 @@ export default {
           data.skuNum = value;
         },
       }),
-      changeSkuNum
     };
   },
 };

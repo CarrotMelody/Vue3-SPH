@@ -1,8 +1,11 @@
 // Detail 模塊的倉庫
-import { reqGoodsInfo } from "@/api";
+import { reqGoodsInfo, reqaddOrUpdateShopCar } from "@/api";
+import { getUUID } from "@/utils/uuid_token";
 
 const state = {
   goodInfo: {},
+  // 遊客臨時身分
+  uuid_token: getUUID()
 };
 
 const mutations = {
@@ -18,6 +21,17 @@ const actions = {
       commit("GETGOODINFO", results.data);
     }
   },
+  // 將產品添加到購物車中
+  async addOrUpdateShopCar({ commit }, { skuId, skuNum }) {
+    // 伺服器沒返回數據，因此不需要三連環
+    let results = await reqaddOrUpdateShopCar(skuId, skuNum);
+
+    if (results.code === 200) {
+      return Promise.resolve("ok");
+    } else {
+      return Promise.reject(new Error("failed"));
+    }
+  },
 };
 
 const getters = {
@@ -29,7 +43,7 @@ const getters = {
   },
   spuSaleAttrList(state) {
     return state.goodInfo.spuSaleAttrList || [];
-  }
+  },
 };
 
 export default {

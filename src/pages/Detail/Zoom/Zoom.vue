@@ -24,7 +24,7 @@ export default {
     });
 
     // 放大鏡
-    const handler = (event) => {
+    const handleZoom = (event) => {
       let maskVal = mask.value;
       let bigVal = big.value;
 
@@ -43,6 +43,23 @@ export default {
       bigVal.style.left = -2 * left + "px";
       bigVal.style.top = -2 * top + "px";
     };
+
+    function throttle(func, n) {
+      var timer;
+      return function () {
+          var _this = this;
+          var args = arguments;
+          if (timer) {
+            return;
+          }
+          timer = setTimeout(function () {
+            func.apply(_this, args);
+            timer = null;
+          }, n)
+      }
+    }
+
+    var handler = throttle(handleZoom, 30); // 節流
 
     onMounted(() => {
       // bus 獲取兄弟組件傳過來的圖片索引值
