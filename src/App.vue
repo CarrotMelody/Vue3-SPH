@@ -23,4 +23,10 @@ export default {
 </script>
 
 <style>
+a {
+  cursor: pointer;
+}
+button {
+  cursor: pointer;
+}
 </style>

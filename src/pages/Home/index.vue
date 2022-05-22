@@ -33,6 +33,8 @@ export default {
 
     onMounted(async () => {
       await store.dispatch("getFloorList");
+      // 獲取用戶信息在首頁展示
+      await store.dispatch("getUserInfo");
     });
 
     return {

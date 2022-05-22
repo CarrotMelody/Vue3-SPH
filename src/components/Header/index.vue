@@ -4,11 +4,15 @@
       <div class="container">
         <div class="loginList">
           <p>尚品汇欢迎您！</p>
-          <p>
+          <p v-if="!userName">
             <span>请</span>
             <!-- 聲明式導航, 務必要有 to 屬性 -->
             <router-link to="/login">登入</router-link>
             <router-link class="register" to="/register">免费注册</router-link>
+          </p>
+          <p v-else>
+            <a>{{ userName }}</a>
+            <a class="register" @click="logout">退出登入</a>
           </p>
         </div>
         <div class="typeList">
@@ -53,12 +57,15 @@
 <script>
 import { computed, reactive, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useStore } from "vuex";
 import bus from "@/bus";
 
 export default {
   setup() {
     const route = useRoute();
     const router = useRouter();
+    const store = useStore();
+
     const data = reactive({
       keyword: "",
     });
@@ -72,6 +79,16 @@ export default {
       router.push(location);
     };
 
+    // 退出登入
+    const logout = async () => {
+      try {
+        await store.dispatch("userLogout");
+        router.push("/home");
+      } catch (error) {
+        alert(error.message);
+      }
+    };
+
     onMounted(() => {
       bus.on("clear", () => {
         data.keyword = "";
@@ -83,7 +100,9 @@ export default {
         get: () => data.keyword,
         set: (value) => (data.keyword = value),
       }),
+      userName: computed(() => store.state.user.userInfo.name),
       goSearch,
+      logout,
     };
   },
 };

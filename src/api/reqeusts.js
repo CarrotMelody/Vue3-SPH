@@ -18,6 +18,12 @@ requests.interceptors.request.use((config) => {
     // 給請求頭添加一個字段(userTempId), 後端給定的
     config.headers.userTempId = uuid_token;
   }
+  // 需要攜帶 token 給後端
+  const { token } = store.state.user;
+  if (token) {
+    config.headers.token = token;
+  }
+
   // 進度條開始動
   nprogress.start();
 
