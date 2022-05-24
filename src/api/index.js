@@ -50,3 +50,10 @@ export const reqUserInfo = () =>
 
 // 退出登入
 export const reqLogout = () => requests.get("/user/passport/logout");
+
+// 獲取用戶地址信息
+export const reqAddressInfo = () => mockRequests.get("/address");
+  // requests.get("/user/userAddress/auth/findUserAddressList");
+
+// 獲取商品清單
+export const reqOrderInfo = () => requests.get("/order/auth/trade");

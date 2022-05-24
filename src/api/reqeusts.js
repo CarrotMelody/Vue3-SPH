@@ -1,6 +1,7 @@
 import axios from "axios";
 import nprogress from "nprogress";
 import "nprogress/nprogress.css";
+import { getToken } from "@/utils/token";
 
 // 在當前模塊中引入 store
 import { store } from "@/store";
@@ -19,7 +20,12 @@ requests.interceptors.request.use((config) => {
     config.headers.userTempId = uuid_token;
   }
   // 需要攜帶 token 給後端
-  const { token } = store.state.user;
+  let token = store.state.user.token;
+
+  if (token == undefined || token == null) {
+    token = localStorage.getItem("TOKEN");
+  }
+
   if (token) {
     config.headers.token = token;
   }

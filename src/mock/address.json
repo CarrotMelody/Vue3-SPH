@@ -1,0 +1,50 @@
+{
+  "code": 200,
+  "message": "成功",
+  "data": [
+    {
+      "id": 1361,
+      "userAddress": "北京北京市朝羊区远洋天地5号楼15",
+      "userId": 2,
+      "consignee": "张龙",
+      "phoneNum": "15852016643",
+      "isDefault": "0",
+      "fullAddress": "北京北京市朝羊区远洋天地5号楼15",
+      "provinceId": 1,
+      "regionId": 1
+    },
+    {
+      "id": 1363,
+      "userAddress": "北京北京市北七家镇",
+      "userId": 2,
+      "consignee": "张三",
+      "phoneNum": "13522222222",
+      "isDefault": "0",
+      "fullAddress": "北京北京市北七家镇",
+      "provinceId": 1,
+      "regionId": 1
+    },
+    {
+      "id": 1364,
+      "userAddress": "湖北武汉市江夏区东湖网谷",
+      "userId": 2,
+      "consignee": "李四",
+      "phoneNum": "13533333333",
+      "isDefault": "0",
+      "fullAddress": "湖北武汉市江夏区东湖网谷",
+      "provinceId": 24,
+      "regionId": 4
+    },
+    {
+      "id": 1365,
+      "userAddress": "广东深圳市宝安区",
+      "userId": 2,
+      "consignee": "王五",
+      "phoneNum": "13544444444",
+      "isDefault": "1",
+      "fullAddress": "广东深圳市宝安区",
+      "provinceId": 26,
+      "regionId": 5
+    }
+  ]
+}

@@ -5,6 +5,7 @@ import search from "./search";
 import detail from "./detail";
 import shopcart from "./shopcart";
 import user from "./user";
+import trade from "./trade";
 
 export const store = createStore({
   // 實現 vuex 倉庫模塊化開發存儲數據
@@ -13,6 +14,7 @@ export const store = createStore({
     search,
     detail,
     shopcart,
-    user
+    user,
+    trade
   },
 });
