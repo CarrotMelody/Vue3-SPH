@@ -35,4 +35,7 @@ import SwiperCore, {
 } from "swiper";
 SwiperCore.use([Navigation, Pagination, Scrollbar, A11y, Autoplay]);
 
+// 引入 message box CSS
+import "element-plus/es/components/message-box/style/css";
+
 app.mount("#app");

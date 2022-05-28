@@ -86,7 +86,7 @@
       </div>
     </div>
     <div class="sub clearFix">
-      <router-link class="subBtn" to="/pay">提交订单</router-link>
+      <a class="subBtn" @click="submitOrder">提交订单</a>
     </div>
   </div>
 </template>
@@ -94,14 +94,18 @@
 <script>
 import { onMounted, computed, reactive } from "vue";
 import { useStore } from "vuex";
+import { useRouter } from "vue-router";
+import { reqSubmitOrder } from "@/api";
 
 export default {
   name: "Trade",
   setup() {
     const store = useStore();
+    const router = useRouter();
 
     const data = reactive({
-      msg: ""
+      msg: "",
+      orderId: ""
     })
 
     onMounted(() => {
@@ -109,25 +113,53 @@ export default {
       store.dispatch("getOrderInfo");
     });
 
+    const orderInfo = computed(() => store.state.trade.orderInfo);
+    const addressInfo = computed(() => store.state.trade.address);
+    const userDefaultAddress = computed(() => {
+      return addressInfo.value.find(item => item.isDefault === "1") || {}
+    });
+
     // 修改默認的地址
-    const changeDefault = (address, addressInfo) => {
+    const changeDefault = (address, info) => {
       // 將所有地址先設為非默認
-      addressInfo.forEach((item) => item.isDefault = "0");
+      info.forEach((item) => item.isDefault = "0");
       // 將選中的地址設為默認
       address.isDefault = "1";
     }
 
-    const addressInfo = computed(() => store.state.trade.address);
-    const userDefaultAddress = computed(() => {
-      return addressInfo.value.find(item => item.isDefault === "1") || {}
-    })
+    // 提交訂單
+    const submitOrder = async () => {
+      // 交易編碼
+      let { tradeNo, detailArrayList } = orderInfo.value;
+      // 其餘參數
+      let { consignee, phoneNum, fullAddress } = userDefaultAddress.value;
+      let payload = {
+        consignee: consignee, // 收件人姓名
+        consigneeTel: phoneNum, // 收件人電話
+        deliveryAddress: fullAddress, // 收件人地址
+        paymentWay: "ONLINE", // 在線支付
+        orderCommnet: data.msg, // 買家留言信息
+        orderDetailList: detailArrayList // 購物車商品清單
+      }
+
+      let results = await reqSubmitOrder(tradeNo, payload);
+
+      if (results.code === 200) {
+        data.orderId = results.data;
+        // 路由跳轉及傳參
+        router.push(`/pay?orderId=${data.orderId}`);
+      } else {
+        alert(results.data);
+      }
+    }
 
     return {
-      addressInfo: addressInfo.value,
-      userDefaultAddress: userDefaultAddress.value,
+      data,
       changeDefault,
-      orderInfo: computed(() => store.state.trade.orderInfo),
-      data
+      submitOrder,
+      addressInfo: computed(() => addressInfo.value),
+      userDefaultAddress: computed(() => userDefaultAddress.value),
+      orderInfo: computed(() => orderInfo.value),
     }
   },
 };

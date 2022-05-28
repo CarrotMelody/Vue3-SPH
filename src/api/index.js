@@ -53,7 +53,23 @@ export const reqLogout = () => requests.get("/user/passport/logout");
 
 // 獲取用戶地址信息
 export const reqAddressInfo = () => mockRequests.get("/address");
-  // requests.get("/user/userAddress/auth/findUserAddressList");
+// requests.get("/user/userAddress/auth/findUserAddressList");
 
 // 獲取商品清單
 export const reqOrderInfo = () => requests.get("/order/auth/trade");
+
+// 提交訂單
+export const reqSubmitOrder = (tradeNo, data) =>
+  requests.post(`/order/auth/submitOrder?tradeNo=${tradeNo}`, data);
+
+// 獲取支付信息
+export const reqPayInfo = (orderId) =>
+  requests.get(`/payment/weixin/createNative/${orderId}`);
+
+// 查詢訂單支付狀態
+export const reqPayStatus = (orderId) =>
+  requests.get(`/payment/weixin/queryPayStatus/${orderId}`);
+
+// 獲取個人中心數據
+export const reqMyOrderList = (page, limit) =>
+  requests.get(`/order/auth/${page}/${limit}`);

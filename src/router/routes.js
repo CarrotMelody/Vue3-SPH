@@ -7,6 +7,11 @@ import Detail from "@/pages/Detail";
 import AddCartSuccess from "@/pages/AddCartSuccess";
 import ShopCart from "@/pages/ShopCart";
 import Trade from "@/pages/Trade";
+import Pay from "@/pages/Pay";
+import PaySuceess from "@/pages/PaySuccess";
+import Center from "@/pages/Center";
+import myOrder from "@/pages/Center/myOrder";
+import groupOrder from "@/pages/Center/groupOrder";
 
 export default [
   {
@@ -58,6 +63,40 @@ export default [
     name: "Trade",
     component: Trade,
     meta: { showFooter: true },
+  },
+  {
+    path: "/pay",
+    name: "Pay",
+    component: Pay,
+    meta: { showFooter: true },
+  },
+  {
+    path: "/paysuccess",
+    name: "PaySuceess",
+    component: PaySuceess,
+    meta: { showFooter: true },
+  },
+  {
+    path: "/center",
+    name: "Center",
+    component: Center,
+    meta: { showFooter: true },
+    children: [
+      {
+        path: "myorder",
+        name: "MyOrder",
+        component: myOrder,
+      },
+      {
+        path: "grouporder",
+        name: "GroupOrder",
+        component: groupOrder,
+      },
+      {
+        path: "/center",
+        redirect: "/center/myorder",
+      },
+    ],
   },
   {
     path: "/search/:keyword?",
