@@ -1,6 +1,6 @@
 // User 模塊的倉庫
 import { reqGetCode, reqUserRegister, reqUserLogin, reqUserInfo, reqLogout } from "@/api";
-import { setToken, getToken, removeToken } from "@/utils/token";
+import { setToken, getToken, removeToken, setName, removeName } from "@/utils/token";
 
 const state = {
   code: "",
@@ -22,6 +22,7 @@ const mutations = {
     state.token = "";
     state.userInfo = {};
     removeToken();
+    removeName();
   }
 };
 
@@ -52,7 +53,7 @@ const actions = {
 
       // 持久化存儲 token
       setToken(results.data.token);
-
+      setName(results.data.name);
       return Promise.resolve("ok");
     } else {
       return Promise.reject(new Error("failed"));

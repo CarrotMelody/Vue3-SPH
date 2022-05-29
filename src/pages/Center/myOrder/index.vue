@@ -183,6 +183,7 @@ export default {
 
     const getPageNo = (page) => {
       data.page = page;
+      getData();
     };
 
     onMounted(() => {

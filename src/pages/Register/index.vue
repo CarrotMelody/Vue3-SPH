@@ -1,61 +1,68 @@
 <template>
   <div class="register-container">
     <!-- 注册内容 -->
-    <div class="register">
-      <h3>
-        注册新用户
-        <span class="go"
-          >我有账号，去 <a href="login.html" target="_blank">登陆</a>
-        </span>
-      </h3>
-      <div class="content">
-        <label>手机号:</label>
-        <input
-          type="text"
-          placeholder="请输入你的手机号"
-          v-model="data.phone"
-        />
-        <span class="error-msg">错误提示信息</span>
+    <Form
+      ref="registerForm"
+      @submit="userRegister"
+      :validation-schema="schema"
+      v-slot="{ errors }"
+    >
+      <div class="register">
+        <h3>
+          注册新用户
+          <span class="go"
+            >我有账号，去 <a href="login.html" target="_blank">登陆</a>
+          </span>
+        </h3>
+        <div class="content">
+          <label>手机号:</label>
+          <Field
+            name="phone"
+            placeholder="请输入你的手机号"
+            v-model="data.phone"
+          />
+          <span class="error-msg">{{ errors.phone }}</span>
+        </div>
+        <div class="content">
+          <label>验证码:</label>
+          <Field name="code" placeholder="请输入验证码" v-model="data.code" />
+          <button
+            style="width: 100px; height: 38px; margin-left: 10px"
+            @click="getCode"
+          >
+            獲取驗證碼
+          </button>
+          <span class="error-msg">{{ errors.code }}</span>
+        </div>
+        <div class="content">
+          <label>登录密码:</label>
+          <Field
+            name="password"
+            placeholder="请输入你的登录密码"
+            v-model="data.password"
+          />
+          <span class="error-msg">{{ errors.password }}</span>
+        </div>
+        <div class="content">
+          <label>确认密码:</label>
+          <Field
+            type="password"
+            name="rePassword"
+            v-model="data.rePassword"
+            placeholder="请输入确认密码"
+          />
+          <span class="error-msg">{{ errors.rePassword }}</span>
+        </div>
+        <div class="controls">
+          <Field name="agree" type="checkbox" :value="data.agree" />
+          <span>同意协议并注册《尚品汇用户协议》</span>
+          <span class="error-msg">{{ errors.agree }}</span>
+        </div>
+        <div class="btn">
+          <button @click="userRegister">完成注册</button>
+        </div>
       </div>
-      <div class="content">
-        <label>验证码:</label>
-        <input type="text" placeholder="请输入验证码" v-model="data.code" />
-        <button
-          style="width: 100px; height: 38px; margin-left: 10px"
-          @click="getCode"
-        >
-          獲取驗證碼
-        </button>
-        <span class="error-msg">错误提示信息</span>
-      </div>
-      <div class="content">
-        <label>登录密码:</label>
-        <input
-          type="password"
-          placeholder="请输入你的登录密码"
-          v-model="data.password"
-        />
-        <span class="error-msg">错误提示信息</span>
-      </div>
-      <div class="content">
-        <label>确认密码:</label>
-        <input
-          type="password"
-          placeholder="请输入确认密码"
-          v-model="data.rePassword"
-        />
-        <span class="error-msg">错误提示信息</span>
-      </div>
-      <div class="controls">
-        <input name="m1" type="checkbox" :checked="data.agree" />
-        <span>同意协议并注册《尚品汇用户协议》</span>
-        <span class="error-msg">错误提示信息</span>
-      </div>
-      <div class="btn">
-        <button @click="userRegister">完成注册</button>
-      </div>
-    </div>
-
+    </Form>
     <!-- 底部 -->
     <div class="copyright">
       <ul>
@@ -75,15 +82,21 @@
 </template>
 
 <script>
-import { reactive, computed } from "vue";
+import { reactive, ref } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
+import { Form, Field } from "vee-validate";
 
 export default {
   name: "Register",
+  components: {
+    Form,
+    Field,
+  },
   setup() {
     const store = useStore();
     const router = useRouter();
+    const registerForm = ref(null);
 
     const data = reactive({
       phone: "",
@@ -105,27 +118,41 @@ export default {
 
     // 用戶註冊
     const userRegister = async () => {
-      try {
-        const { phone, code, password, rePassword } = data;
-        if (phone && code && password === rePassword) {
-          await store.dispatch("userRegister", {
-            phone,
-            code,
-            password,
-            rePassword,
-          });
-          // 若註冊成功則跳轉至登入頁
-          router.push("/login");
+      const form = await registerForm.value.validate();
+
+      if (form.valid) {
+        try {
+          const { phone, code, password, rePassword } = data;
+          if (phone && code && password === rePassword) {
+            await store.dispatch("userRegister", {
+              phone,
+              code,
+              password,
+              rePassword,
+            });
+            // 若註冊成功則跳轉至登入頁
+            router.push("/login");
+          }
+        } catch (error) {
+          alert(error.message);
         }
-      } catch (error) {
-        alert(error.message);
       }
+    };
+
+    const schema = {
+      phone: "required|phone",
+      code: "required|code",
+      password: "required|password",
+      rePassword: "required|confirmed:password",
+      agree: "agree",
     };
 
     return {
       data,
       getCode,
       userRegister,
+      schema,
+      registerForm
     };
   },
 };

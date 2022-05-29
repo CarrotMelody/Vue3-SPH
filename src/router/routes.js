@@ -1,23 +1,13 @@
-// 引入路由組件
-import Home from "@/pages/Home";
-import Login from "@/pages/Login";
-import Register from "@/pages/Register";
-import Search from "@/pages/Search";
-import Detail from "@/pages/Detail";
-import AddCartSuccess from "@/pages/AddCartSuccess";
-import ShopCart from "@/pages/ShopCart";
-import Trade from "@/pages/Trade";
-import Pay from "@/pages/Pay";
-import PaySuceess from "@/pages/PaySuccess";
-import Center from "@/pages/Center";
-import myOrder from "@/pages/Center/myOrder";
-import groupOrder from "@/pages/Center/groupOrder";
+/*
+當打包構建應用時, JS 包會變得非常大, 影響頁面加載
+如果能把不同路由對應的組件分割成不同的代碼塊, 然後當路由被訪問時才加載對應組件, 這樣會更高效
+*/
 
 export default [
   {
     path: "/home",
     name: "Home",
-    component: Home,
+    component: () => import("@/pages/Home"),
     meta: {
       showFooter: true, // 判斷 footer 是否顯示
     },
@@ -25,7 +15,7 @@ export default [
   {
     path: "/login",
     name: "Login",
-    component: Login,
+    component: () => import("@/pages/Login"),
     meta: {
       showFooter: false,
     },
@@ -33,7 +23,7 @@ export default [
   {
     path: "/register",
     name: "Register",
-    component: Register,
+    component: () => import("@/pages/Register"),
     meta: {
       showFooter: false,
     },
@@ -41,7 +31,7 @@ export default [
   {
     path: "/detail/:skuid",
     name: "Detail",
-    component: Detail,
+    component: () => import("@/pages/Detail"),
     meta: {
       showFooter: true,
     },
@@ -49,48 +39,63 @@ export default [
   {
     path: "/addcartsuccess",
     name: "Addcartsuccess",
-    component: AddCartSuccess,
+    component: () => import("@/pages/AddCartSuccess"),
     meta: { showFooter: true },
   },
   {
     path: "/shopCart",
     name: "ShopCart",
-    component: ShopCart,
+    component: () => import("@/pages/ShopCart"),
     meta: { showFooter: true },
   },
   {
     path: "/trade",
     name: "Trade",
-    component: Trade,
+    component: () => import("@/pages/Trade"),
     meta: { showFooter: true },
+    // 路由獨享守衛
+    beforeEnter: (to, from, next) => {
+      if (from.path == "/shopcart") {
+        next();
+      } else {
+        next(from.path);
+      }
+    },
   },
   {
     path: "/pay",
     name: "Pay",
-    component: Pay,
+    component: () => import("@/pages/Pay"),
     meta: { showFooter: true },
+    beforeEnter: (to, from, next) => {
+      if (from.path == "/trade") {
+        next();
+      } else {
+        next(from.path);
+      }
+    },
   },
   {
     path: "/paysuccess",
     name: "PaySuceess",
-    component: PaySuceess,
+    component: () => import("@/pages/PaySuccess"),
     meta: { showFooter: true },
   },
   {
     path: "/center",
     name: "Center",
-    component: Center,
+    component: () => import("@/pages/Center"),
     meta: { showFooter: true },
     children: [
       {
         path: "myorder",
         name: "MyOrder",
-        component: myOrder,
+        component: () => import("@/pages/Center/myOrder"),
       },
       {
         path: "grouporder",
         name: "GroupOrder",
-        component: groupOrder,
+        component: () => import("@/pages/Center/groupOrder"),
       },
       {
         path: "/center",
@@ -101,7 +106,7 @@ export default [
   {
     path: "/search/:keyword?",
     name: "Search",
-    component: Search,
+    component: () => import("@/pages/Search"),
     meta: {
       showFooter: true,
     },

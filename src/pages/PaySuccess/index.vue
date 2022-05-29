@@ -20,6 +20,29 @@
 <script>
   export default {
     name: 'PaySuccess',
+    // 組件內守衛
+    beforeRouteEnter (to, from, next) {
+      // 在渲染該組建的對應路由被 confirm 前調用
+      // 不能獲取組件實例 this
+      // 因為當守衛執行前, 組件實例還沒被創建
+      if (from.path == "/pay") {
+        next();
+      } else {
+        next(from.path);
+      }
+    },
+    // beforeRouteUpdate(to, from, next) {
+    //   // 在當前路由改變, 但組件被覆用時調用
+    //   // 舉例來說, 對於一個帶有動態參數的路徑 /foo/:id, 在 /foo/1 和 /foo/2  之間跳轉的時候
+    //   // 由於會渲染同樣的 foo 組件, 因此組件實例會被覆用. 而這個 hook 就會在這種情況下被調用
+    //   // 可以訪問組件實例 this
+    //   console.log('1');
+    // },
+    // beforeRouteLeave(to, from, next) {
+    //   // 導航離開該組建的對應路由時調用
+    //   // 可以訪問組件實例 this
+    //   console.log('2');
+    // },
   }
 </script>
 

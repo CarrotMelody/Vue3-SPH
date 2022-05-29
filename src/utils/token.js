@@ -9,3 +9,15 @@ export const getToken = () => {
 export const removeToken = () => {
   localStorage.removeItem("TOKEN");
 }
+
+export const setName = (name) => {
+  localStorage.setItem("NAME", name);
+};
+
+export const getName = () => {
+  localStorage.getItem("NAME");
+};
+
+export const removeName = () => {
+  localStorage.removeItem("NAME");
+}

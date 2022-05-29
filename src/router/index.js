@@ -3,6 +3,8 @@ import { createRouter, createWebHistory } from "vue-router";
 import routes from "./routes";
 import { store } from "@/store";
 
+const privatePaths = ["/trade", "/center", "/pay"];
+
 const router = createRouter({
   history: createWebHistory(),
   routes,
@@ -12,24 +14,24 @@ const router = createRouter({
   },
 });
 
-// 全局首位: 前置守衛 (在路由跳轉之間進行判斷)
+// 全局守衛: 前置守衛 (在路由跳轉之間進行判斷)
 router.beforeEach(async (to, from, next) => {
   let token = store.state.user.token;
+  let name = store.state.user.userInfo.name;
 
   if (token == undefined || token == null) {
     token = localStorage.getItem("TOKEN");
   }
-
-  // 用戶信息
-  let name = store.state.user.userInfo.name;
+  if (name == undefined || name == null) {
+    name = localStorage.getItem("NAME");
+  }
 
   // 已登入
   if (token) {
-    if (to.path == "/login") {
-      // 登入後無法再前往登入頁
-      next("/home");
+    if (to.name === "Login") {
+      next('/home');
     } else {
-      if (name) {
+      if (to.path == "/login" || to.path == "/register") {
         next();
       } else {
         try {
@@ -45,7 +47,13 @@ router.beforeEach(async (to, from, next) => {
     }
   } else {
     // 未登入
-    next();
+    let toPath = to.path;
+    if (privatePaths.some((path) => toPath.indexOf(path) !== -1)) {
+      // 用 query 紀錄原來要去的路由
+      next("/login?redirect=" + toPath);
+    } else {
+      next();
+    }
   }
 });
 

@@ -26,7 +26,7 @@
               <div class="input-text clearFix">
                 <span class="pwd"></span>
                 <input
-                  type="text"
+                  type="password"
                   placeholder="请输入密码"
                   v-model="data.password"
                 />
@@ -79,13 +79,14 @@
 <script>
 import { reactive } from "vue";
 import { useStore } from "vuex";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 
 export default {
   name: "Login",
   setup() {
     const store = useStore();
     const router = useRouter();
+    const route = useRoute();
 
     const data = reactive({
       phone: "",
@@ -98,7 +99,10 @@ export default {
         const { phone, password } = data;
         if (phone && password) {
           await store.dispatch("userLogin", { phone, password });
-          router.push("/home");
+
+          let toPath = route.query.redirect || "/home";
+
+          router.push(toPath);
         }
       } catch (error) {
         alert(error.message);

@@ -1,7 +1,7 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 
-const app = createApp(App);
+export const app = createApp(App);
 
 // 引入路由
 import router from "@/router";
@@ -37,5 +37,15 @@ SwiperCore.use([Navigation, Pagination, Scrollbar, A11y, Autoplay]);
 
 // 引入 message box CSS
 import "element-plus/es/components/message-box/style/css";
+
+// 引入 vue-lazyload
+import VueLazyLoad from 'vue3-lazyload';
+import LoadingImage from "@/assets/loading.gif";
+app.use(VueLazyLoad, {
+  loading: LoadingImage,
+});
+
+// 引入表單驗證插件
+import "@/plugins/validate";
 
 app.mount("#app");
