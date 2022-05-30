@@ -1,0 +1,10 @@
+{
+  "name": "vue-sph",
+  "version": "1.0.0",
+  "description": "vue project",
+  "author": "carrotmelody",
+  "private": true,
+  "scripts": {
+    "postinstall": "npm install express"
+  }
+}

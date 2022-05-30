@@ -38,11 +38,24 @@ test
 
 ## 部署步驟
 
-1. 在 package.json 中的 scripts 加上 `"postinstall": "npm install express",`
+1. 使用 npm run build 指令打包 vue app, 並在 .gitignore 中刪除 dist
 
-2. 使用 npm run build 指令打包 vue app, 並在 .gitignore 中刪除 dist
+2. 在 dist 底下新增 package.json 
 
-3. 新增 server.js
+```json
+{
+ "name": "vue-sph",
+ "version": "1.0.0",
+ "description": "vue project",
+ "author": "author",
+ "private": true,
+ "scripts": {
+   "postinstall": "npm install express"
+ }
+}
+```
+
+3. 在 dist 底下新增 server.js
 
 ```js
 var express = require('express');
