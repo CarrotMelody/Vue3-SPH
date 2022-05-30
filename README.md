@@ -35,3 +35,40 @@
 
 4894892123182
 test
+
+## 部署步驟
+
+1. 在 package.json 中的 scripts 加上 `"postinstall": "npm install express",`
+
+2. 使用 npm run build 指令打包 vue app, 並在 .gitignore 中刪除 dist
+
+3. 新增 server.js
+
+```js
+var express = require('express');
+var path = require('path');
+var serveStatic = require('serve-static');
+
+app = express();
+app.use(serveStatic(__dirname));
+
+var port = process.env.PORT || 5000;
+app.listen(port);
+console.log('server started '+ port);
+```
+
+4. 使用 `heroku login` 指令登入 heroku
+
+5. 使用指令 `heroku git:remote -a <app-name>` 連上已經建立的 heroku app
+
+6. 設置運行環境 `heroku buildpacks:set heroku/nodejs`
+
+> Error: The buildpack heroku/nodejs is already set on your app.
+
+7. 部署至 heroku
+
+```
+git add .
+git commit -m "msg"
+git subtree push --prefix dist heroku master // 只部署 dist 到 heroku 上
+```

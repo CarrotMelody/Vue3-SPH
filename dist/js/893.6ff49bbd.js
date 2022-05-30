@@ -1,0 +1,1 @@
+"use strict";(self["webpackChunkapp"]=self["webpackChunkapp"]||[]).push([[893],{9893:function(r,n,e){e.r(n),e.d(n,{default:function(){return f}});var u=e(3396);function a(r,n,e,a,t,p){return(0,u.wg)(),(0,u.iD)("div")}var t={name:"GroupOrder"},p=e(89);const c=(0,p.Z)(t,[["render",a]]);var f=c}}]);
