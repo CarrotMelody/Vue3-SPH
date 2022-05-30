@@ -58,7 +58,7 @@ export default [
       if (from.path == "/shopcart") {
         next();
       } else {
-        next(from.path);
+        next(false);
       }
     },
   },
@@ -71,7 +71,7 @@ export default [
       if (from.path == "/trade") {
         next();
       } else {
-        next(from.path);
+        next(false);
       }
     },
   },

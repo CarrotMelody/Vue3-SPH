@@ -28,10 +28,10 @@ router.beforeEach(async (to, from, next) => {
 
   // 已登入
   if (token) {
-    if (to.name === "Login") {
-      next('/home');
+    if (to.name == "Login" || to.name == "Register") {
+      next("/home");
     } else {
-      if (to.path == "/login" || to.path == "/register") {
+      if (name) {
         next();
       } else {
         try {

@@ -28,7 +28,7 @@
       if (from.path == "/pay") {
         next();
       } else {
-        next(from.path);
+        next(false);
       }
     },
     // beforeRouteUpdate(to, from, next) {
